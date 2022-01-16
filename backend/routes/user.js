@@ -39,7 +39,8 @@ router.post('/create', async (req, res, next) => {
         }
 
         const username = req.body.username;
-        const newUser = new User({username: username, password: hashed});;
+        const email = req.body.email;
+        const newUser = new User({username: username, password: hashed, email: email});;
         
         newUser.save()
         .then(() => res.json(`User ${username} added!`))
