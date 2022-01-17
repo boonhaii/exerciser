@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
 
 require('dotenv').config();
 
@@ -9,6 +10,27 @@ router.get('/', (req, res) => {
     .then(users => res.json(users))
     .catch(err => res.status(400).json("Error: " + err));
 })
+
+router.post('/login', async (req, res, next) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    let matchedUser = await User.findOne({username: username});
+    console.log(matchedUser);
+    if (matchedUser.length === 0) {
+        return res.status(400).json("User not found.")
+    }
+
+    let matchedPassword = await bcrypt.compare(password, matchedUser.password);
+
+    if (!matchedPassword) {
+        return res.status(400).json("Password is incorrect.");
+    } 
+
+    const token = jwt.sign({username: username}, "secret-token", {expiresIn: "24h"});
+    return res.status(200).json({message: `Successfully signed in. Welcome ${username}!`, token: token});
+
+});
 
 
 router.post('/create', async (req, res, next) => {
