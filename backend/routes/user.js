@@ -16,19 +16,19 @@ router.post('/login', async (req, res, next) => {
     const password = req.body.password;
 
     let matchedUser = await User.findOne({username: username});
-    console.log(matchedUser);
-    if (matchedUser.length === 0) {
-        return res.status(400).json("User not found.")
+    
+    if (matchedUser === null) {
+        return res.status(400).json("User not found. Please check your username and try again.")
     }
 
     let matchedPassword = await bcrypt.compare(password, matchedUser.password);
 
     if (!matchedPassword) {
-        return res.status(400).json("Password is incorrect.");
+        return res.status(400).json("Password is incorrect. Please check your password and try again.");
     } 
 
     const token = jwt.sign({username: username}, "secret-token", {expiresIn: "24h"});
-    return res.status(200).json({message: `Successfully signed in. Welcome ${username}!`, token: token});
+    return res.json({message: `Successfully signed in. Welcome ${username}!`, token: token});
 
 });
 
